@@ -17,6 +17,7 @@ import {model, property, repository} from '@loopback/repository';
 import {
   get,
   getModelSchemaRef,
+  param,
   post,
   requestBody,
   SchemaObject,
@@ -38,14 +39,20 @@ const CredentialsSchema: SchemaObject = {
   type: 'object',
   required: ['email', 'password'],
   properties: {
+
+    
     email: {
       type: 'string',
       format: 'email',
     },
     password: {
       type: 'string',
-      minLength: 8,
+      minLength: 5,
     },
+    perfil: {
+      type: 'string',
+    },
+    
   },
 };
 
@@ -98,7 +105,8 @@ export class UserController {
     // create a JSON Web Token based on the user profile
     const token = await this.jwtService.generateToken(userProfile);
 
-    console.log(user+'.....'+userProfile)
+ 
+    
 
     return {token};
   }
@@ -160,8 +168,23 @@ export class UserController {
 
     await this.userRepository.userCredentials(savedUser.id).create({password});
 
-   
-
     return savedUser;
+    
   }
+  
+  @get('/users/{id}', {
+    responses: {
+      '200': {
+        description: 'User model instance',
+        content: {'application/json': {schema: getModelSchemaRef(User)}},
+      },
+    },
+  })
+  async findById(@param.path.string('id') id: string): Promise<User> {
+    return this.userRepository.findById(id);
+  }
+
+  
+
+
 }
